@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M4",
+  "level": "error",
+  "violation": "index.md links to ghost.md, which does not exist in the bundle"
+}

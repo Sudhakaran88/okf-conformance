@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M3",
+  "level": "error",
+  "violation": "thing.md has frontmatter but no `type` field"
+}

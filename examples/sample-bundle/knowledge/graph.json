@@ -1,0 +1,221 @@
+{
+  "bundle": "knowledge",
+  "generated": "2026-06-15T18:52:34.340Z",
+  "counts": {
+    "concepts": 12,
+    "links": 23,
+    "types": 6
+  },
+  "types": [
+    "Client",
+    "Convention",
+    "Knowledge Bundle",
+    "Playbook",
+    "Section",
+    "Term"
+  ],
+  "nodes": [
+    {
+      "id": "clients/acme-store.md",
+      "type": "Client",
+      "title": "Acme Store",
+      "description": "DTC Shopify store, US market. SEO + content retainer.",
+      "tags": [
+        "shopify",
+        "ecommerce",
+        "us"
+      ]
+    },
+    {
+      "id": "clients/index.md",
+      "type": "Section",
+      "title": "Clients",
+      "description": "Active engagements and the facts agents need before touching their work.",
+      "tags": []
+    },
+    {
+      "id": "clients/northwind.md",
+      "type": "Client",
+      "title": "Northwind",
+      "description": "B2B SaaS, UK market. Content-led growth.",
+      "tags": [
+        "saas",
+        "uk"
+      ]
+    },
+    {
+      "id": "conventions/index.md",
+      "type": "Section",
+      "title": "Conventions",
+      "description": "How this team does things, so agents and people stay consistent.",
+      "tags": []
+    },
+    {
+      "id": "conventions/reporting-cadence.md",
+      "type": "Convention",
+      "title": "Reporting Cadence",
+      "description": "When and how client reports go out.",
+      "tags": [
+        "ops",
+        "reporting"
+      ]
+    },
+    {
+      "id": "glossary/canonical-url.md",
+      "type": "Term",
+      "title": "Canonical URL",
+      "description": "The preferred URL for a set of duplicate or similar pages.",
+      "tags": [
+        "seo",
+        "technical"
+      ]
+    },
+    {
+      "id": "glossary/core-web-vitals.md",
+      "type": "Term",
+      "title": "Core Web Vitals",
+      "description": "Google's page-experience metrics (LCP, INP, CLS).",
+      "tags": [
+        "seo",
+        "performance"
+      ]
+    },
+    {
+      "id": "glossary/index.md",
+      "type": "Section",
+      "title": "Glossary",
+      "description": "Shared definitions so a metric means the same thing to every agent.",
+      "tags": []
+    },
+    {
+      "id": "index.md",
+      "type": "Knowledge Bundle",
+      "title": "Acme Growth Knowledge",
+      "description": "One portable source of truth for the agents and people working Acme's SEO and content.",
+      "tags": [
+        "root"
+      ]
+    },
+    {
+      "id": "playbooks/content-refresh.md",
+      "type": "Playbook",
+      "title": "Content Refresh",
+      "description": "Update decaying pages to recover and grow organic traffic.",
+      "tags": [
+        "content",
+        "seo"
+      ]
+    },
+    {
+      "id": "playbooks/index.md",
+      "type": "Section",
+      "title": "Playbooks",
+      "description": "Repeatable procedures an agent can execute end to end.",
+      "tags": []
+    },
+    {
+      "id": "playbooks/technical-seo-audit.md",
+      "type": "Playbook",
+      "title": "Technical SEO Audit",
+      "description": "Crawl, diagnose, prioritize. The standard health check.",
+      "tags": [
+        "seo",
+        "technical"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "source": "clients/acme-store.md",
+      "target": "glossary/core-web-vitals.md"
+    },
+    {
+      "source": "clients/acme-store.md",
+      "target": "playbooks/technical-seo-audit.md"
+    },
+    {
+      "source": "clients/acme-store.md",
+      "target": "conventions/reporting-cadence.md"
+    },
+    {
+      "source": "clients/index.md",
+      "target": "clients/acme-store.md"
+    },
+    {
+      "source": "clients/index.md",
+      "target": "clients/northwind.md"
+    },
+    {
+      "source": "clients/northwind.md",
+      "target": "playbooks/content-refresh.md"
+    },
+    {
+      "source": "clients/northwind.md",
+      "target": "conventions/reporting-cadence.md"
+    },
+    {
+      "source": "conventions/index.md",
+      "target": "conventions/reporting-cadence.md"
+    },
+    {
+      "source": "conventions/reporting-cadence.md",
+      "target": "clients/acme-store.md"
+    },
+    {
+      "source": "conventions/reporting-cadence.md",
+      "target": "clients/northwind.md"
+    },
+    {
+      "source": "glossary/core-web-vitals.md",
+      "target": "playbooks/technical-seo-audit.md"
+    },
+    {
+      "source": "glossary/index.md",
+      "target": "glossary/core-web-vitals.md"
+    },
+    {
+      "source": "glossary/index.md",
+      "target": "glossary/canonical-url.md"
+    },
+    {
+      "source": "index.md",
+      "target": "clients/index.md"
+    },
+    {
+      "source": "index.md",
+      "target": "playbooks/index.md"
+    },
+    {
+      "source": "index.md",
+      "target": "conventions/index.md"
+    },
+    {
+      "source": "index.md",
+      "target": "glossary/index.md"
+    },
+    {
+      "source": "playbooks/content-refresh.md",
+      "target": "glossary/canonical-url.md"
+    },
+    {
+      "source": "playbooks/index.md",
+      "target": "playbooks/technical-seo-audit.md"
+    },
+    {
+      "source": "playbooks/index.md",
+      "target": "playbooks/content-refresh.md"
+    },
+    {
+      "source": "playbooks/technical-seo-audit.md",
+      "target": "glossary/canonical-url.md"
+    },
+    {
+      "source": "playbooks/technical-seo-audit.md",
+      "target": "glossary/core-web-vitals.md"
+    },
+    {
+      "source": "playbooks/technical-seo-audit.md",
+      "target": "conventions/reporting-cadence.md"
+    }
+  ]
+}

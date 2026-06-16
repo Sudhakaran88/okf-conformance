@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OKF — knowledge</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html,body { margin:0; height:100%; background:#0b0f17; color:#e6edf3; font:14px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; }
+  #app { position:fixed; inset:0; }
+  header { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; gap:14px; align-items:center; padding:12px 16px; background:linear-gradient(#0b0f17ee,#0b0f1700); pointer-events:none; flex-wrap:wrap; }
+  header .pointer { pointer-events:auto; }
+  h1 { font-size:15px; margin:0; font-weight:650; letter-spacing:.2px; }
+  h1 small { color:#8b98a9; font-weight:400; }
+  #counts { color:#8b98a9; font-size:12px; }
+  #search { pointer-events:auto; background:#121826; border:1px solid #243044; color:#e6edf3; border-radius:8px; padding:6px 10px; width:200px; outline:none; }
+  #search:focus { border-color:#3b5bdb; }
+  #legend { display:flex; gap:12px; flex-wrap:wrap; pointer-events:auto; }
+  .lg { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#aeb9c7; }
+  .lg i { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  svg { width:100%; height:100%; display:block; cursor:grab; }
+  svg:active { cursor:grabbing; }
+  .edge { stroke:#27324a; stroke-width:1; }
+  .edge-hl { stroke:#5b7cff; stroke-width:1.8; }
+  .node { cursor:pointer; }
+  .node circle { stroke:#0b0f17; stroke-width:1.5; transition:opacity .15s; }
+  .node .label { fill:#c4cdd9; font-size:10px; text-anchor:middle; paint-order:stroke; stroke:#0b0f17; stroke-width:3px; pointer-events:none; }
+  .node.dim { opacity:.12; }
+  .node.hl circle { stroke:#fff; stroke-width:2.5; }
+  .node.hit circle { stroke:#ffd166; stroke-width:2.5; }
+  #panel { position:absolute; top:0; right:0; bottom:0; width:330px; background:#0e1422f2; border-left:1px solid #1d2638; padding:64px 20px 20px; overflow:auto; transform:translateX(110%); transition:transform .2s; z-index:6; }
+  #panel.open { transform:none; }
+  #panel .ptype { font-size:12px; text-transform:uppercase; letter-spacing:.6px; font-weight:600; }
+  #panel h2 { margin:4px 0 2px; font-size:18px; }
+  #panel .pid { color:#6b7689; font-size:11px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-bottom:10px; word-break:break-all; }
+  #panel p { color:#c4cdd9; }
+  #panel h3 { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#8b98a9; margin:16px 0 6px; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .tag { background:#172033; border:1px solid #243044; color:#aeb9c7; border-radius:999px; padding:2px 9px; font-size:11px; }
+  .links { display:flex; flex-direction:column; gap:5px; }
+  .lk { text-align:left; background:#141c2c; border:1px solid #233044; color:#cdd6e2; border-radius:7px; padding:6px 9px; cursor:pointer; font-size:12.5px; }
+  .lk:hover { border-color:#3b5bdb; background:#18233a; }
+  .muted { color:#6b7689; }
+  footer { position:absolute; bottom:8px; left:14px; color:#56627a; font-size:11px; z-index:5; }
+</style></head>
+<body><div id="app">
+  <header>
+    <div class="pointer"><h1>OKF <small>· knowledge</small></h1><div id="counts"></div></div>
+    <input id="search" class="pointer" placeholder="Search concepts…" />
+    <div id="legend"></div>
+  </header>
+  <svg id="graph"><g id="viewport"></g></svg>
+  <aside id="panel"></aside>
+  <footer>Open Knowledge Format · drag to pan · scroll to zoom · click a concept</footer>
+</div>
+<script>window.__OKF_DATA__ = {"bundle":"knowledge","generated":"2026-06-15T18:52:34.340Z","counts":{"concepts":12,"links":23,"types":6},"types":["Client","Convention","Knowledge Bundle","Playbook","Section","Term"],"nodes":[{"id":"clients/acme-store.md","type":"Client","title":"Acme Store","description":"DTC Shopify store, US market. SEO + content retainer.","tags":["shopify","ecommerce","us"]},{"id":"clients/index.md","type":"Section","title":"Clients","description":"Active engagements and the facts agents need before touching their work.","tags":[]},{"id":"clients/northwind.md","type":"Client","title":"Northwind","description":"B2B SaaS, UK market. Content-led growth.","tags":["saas","uk"]},{"id":"conventions/index.md","type":"Section","title":"Conventions","description":"How this team does things, so agents and people stay consistent.","tags":[]},{"id":"conventions/reporting-cadence.md","type":"Convention","title":"Reporting Cadence","description":"When and how client reports go out.","tags":["ops","reporting"]},{"id":"glossary/canonical-url.md","type":"Term","title":"Canonical URL","description":"The preferred URL for a set of duplicate or similar pages.","tags":["seo","technical"]},{"id":"glossary/core-web-vitals.md","type":"Term","title":"Core Web Vitals","description":"Google's page-experience metrics (LCP, INP, CLS).","tags":["seo","performance"]},{"id":"glossary/index.md","type":"Section","title":"Glossary","description":"Shared definitions so a metric means the same thing to every agent.","tags":[]},{"id":"index.md","type":"Knowledge Bundle","title":"Acme Growth Knowledge","description":"One portable source of truth for the agents and people working Acme's SEO and content.","tags":["root"]},{"id":"playbooks/content-refresh.md","type":"Playbook","title":"Content Refresh","description":"Update decaying pages to recover and grow organic traffic.","tags":["content","seo"]},{"id":"playbooks/index.md","type":"Section","title":"Playbooks","description":"Repeatable procedures an agent can execute end to end.","tags":[]},{"id":"playbooks/technical-seo-audit.md","type":"Playbook","title":"Technical SEO Audit","description":"Crawl, diagnose, prioritize. The standard health check.","tags":["seo","technical"]}],"links":[{"source":"clients/acme-store.md","target":"glossary/core-web-vitals.md"},{"source":"clients/acme-store.md","target":"playbooks/technical-seo-audit.md"},{"source":"clients/acme-store.md","target":"conventions/reporting-cadence.md"},{"source":"clients/index.md","target":"clients/acme-store.md"},{"source":"clients/index.md","target":"clients/northwind.md"},{"source":"clients/northwind.md","target":"playbooks/content-refresh.md"},{"source":"clients/northwind.md","target":"conventions/reporting-cadence.md"},{"source":"conventions/index.md","target":"conventions/reporting-cadence.md"},{"source":"conventions/reporting-cadence.md","target":"clients/acme-store.md"},{"source":"conventions/reporting-cadence.md","target":"clients/northwind.md"},{"source":"glossary/core-web-vitals.md","target":"playbooks/technical-seo-audit.md"},{"source":"glossary/index.md","target":"glossary/core-web-vitals.md"},{"source":"glossary/index.md","target":"glossary/canonical-url.md"},{"source":"index.md","target":"clients/index.md"},{"source":"index.md","target":"playbooks/index.md"},{"source":"index.md","target":"conventions/index.md"},{"source":"index.md","target":"glossary/index.md"},{"source":"playbooks/content-refresh.md","target":"glossary/canonical-url.md"},{"source":"playbooks/index.md","target":"playbooks/technical-seo-audit.md"},{"source":"playbooks/index.md","target":"playbooks/content-refresh.md"},{"source":"playbooks/technical-seo-audit.md","target":"glossary/canonical-url.md"},{"source":"playbooks/technical-seo-audit.md","target":"glossary/core-web-vitals.md"},{"source":"playbooks/technical-seo-audit.md","target":"conventions/reporting-cadence.md"}]};
+(function vizMain() {
+  const DATA = window.__OKF_DATA__;
+  const palette = ["#6ea8fe","#ffd166","#06d6a0","#ef476f","#c792ea","#f78c6b","#7fdbca","#bb80ff","#ff9e64","#9ece6a","#e0af68","#7dcfff"];
+  const colorOf = {};
+  DATA.types.forEach((t, i) => { colorOf[t] = palette[i % palette.length]; });
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("graph");
+  const viewport = document.getElementById("viewport");
+  const W = () => svg.clientWidth, H = () => svg.clientHeight;
+
+  const nodes = DATA.nodes.map((n) => ({ ...n, x: 0, y: 0, vx: 0, vy: 0 }));
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const links = DATA.links
+    .map((l) => ({ source: byId.get(l.source), target: byId.get(l.target) }))
+    .filter((l) => l.source && l.target);
+
+  const neighbors = new Map(nodes.map((n) => [n.id, new Set()]));
+  links.forEach((l) => { neighbors.get(l.source.id).add(l.target.id); neighbors.get(l.target.id).add(l.source.id); });
+
+  // seed positions on a circle
+  const R0 = Math.min(W(), H()) / 3 || 250;
+  nodes.forEach((n, i) => {
+    const a = (i / nodes.length) * Math.PI * 2;
+    n.x = Math.cos(a) * R0 + (Math.random() - 0.5) * 40;
+    n.y = Math.sin(a) * R0 + (Math.random() - 0.5) * 40;
+  });
+
+  // draw edges
+  const linkEls = links.map((l) => {
+    const line = document.createElementNS(svgNS, "line");
+    line.setAttribute("class", "edge");
+    viewport.appendChild(line);
+    l.el = line; return l;
+  });
+
+  // draw nodes
+  const radius = (n) => 7 + Math.min(14, (neighbors.get(n.id).size) * 1.6);
+  const nodeEls = nodes.map((n) => {
+    const g = document.createElementNS(svgNS, "g");
+    g.setAttribute("class", "node");
+    const c = document.createElementNS(svgNS, "circle");
+    c.setAttribute("r", radius(n));
+    c.setAttribute("fill", colorOf[n.type] || "#9aa5b1");
+    const label = document.createElementNS(svgNS, "text");
+    label.setAttribute("class", "label");
+    label.setAttribute("dy", radius(n) + 13);
+    label.textContent = n.title.length > 28 ? n.title.slice(0, 27) + "\u2026" : n.title;
+    g.appendChild(c); g.appendChild(label);
+    viewport.appendChild(g);
+    n.el = g; n.circle = c;
+    g.addEventListener("mousedown", (e) => startDrag(e, n));
+    g.addEventListener("click", (e) => { e.stopPropagation(); select(n); });
+    return n;
+  });
+
+  // ---- force simulation ----
+  let alpha = 1;
+  function tick() {
+    const kRepel = 5200, kSpring = 0.02, rest = 90, center = 0.012;
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        let dx = a.x - b.x, dy = a.y - b.y;
+        let d2 = dx * dx + dy * dy || 0.01;
+        const f = (kRepel / d2) * alpha;
+        const d = Math.sqrt(d2);
+        const fx = (dx / d) * f, fy = (dy / d) * f;
+        a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+      }
+    }
+    for (const l of linkEls) {
+      let dx = l.target.x - l.source.x, dy = l.target.y - l.source.y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const f = (d - rest) * kSpring * alpha;
+      const fx = (dx / d) * f, fy = (dy / d) * f;
+      l.source.vx += fx; l.source.vy += fy; l.target.vx -= fx; l.target.vy -= fy;
+    }
+    for (const n of nodes) {
+      if (n.fixed) { n.vx = 0; n.vy = 0; continue; }
+      n.vx -= n.x * center * alpha; n.vy -= n.y * center * alpha;
+      n.vx *= 0.85; n.vy *= 0.85;
+      n.x += Math.max(-30, Math.min(30, n.vx));
+      n.y += Math.max(-30, Math.min(30, n.vy));
+    }
+    if (alpha > 0.03) alpha *= 0.985;
+    render();
+    requestAnimationFrame(tick);
+  }
+  function render() {
+    for (const l of linkEls) {
+      l.el.setAttribute("x1", l.source.x); l.el.setAttribute("y1", l.source.y);
+      l.el.setAttribute("x2", l.target.x); l.el.setAttribute("y2", l.target.y);
+    }
+    for (const n of nodes) n.el.setAttribute("transform", `translate(${n.x},${n.y})`);
+  }
+
+  // ---- pan + zoom ----
+  let tx = 0, ty = 0, scale = 1;
+  function applyView() { viewport.setAttribute("transform", `translate(${tx},${ty}) scale(${scale})`); }
+  applyView();
+  let panning = false, panStart = null;
+  svg.addEventListener("mousedown", (e) => { if (e.target === svg || e.target === viewport) { panning = true; panStart = { x: e.clientX - tx, y: e.clientY - ty }; } });
+  window.addEventListener("mousemove", (e) => { if (panning) { tx = e.clientX - panStart.x; ty = e.clientY - panStart.y; applyView(); } });
+  window.addEventListener("mouseup", () => { panning = false; });
+  svg.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    const rect = svg.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    tx = mx - (mx - tx) * factor; ty = my - (my - ty) * factor; scale *= factor; applyView();
+  }, { passive: false });
+
+  // ---- drag a node ----
+  let dragNode = null, dragOff = null;
+  function startDrag(e, n) {
+    e.stopPropagation(); dragNode = n; n.fixed = true;
+    const p = toLocal(e); dragOff = { x: p.x - n.x, y: p.y - n.y };
+  }
+  function toLocal(e) {
+    const rect = svg.getBoundingClientRect();
+    return { x: (e.clientX - rect.left - tx) / scale, y: (e.clientY - rect.top - ty) / scale };
+  }
+  window.addEventListener("mousemove", (e) => { if (dragNode) { const p = toLocal(e); dragNode.x = p.x - dragOff.x; dragNode.y = p.y - dragOff.y; alpha = Math.max(alpha, 0.4); } });
+  window.addEventListener("mouseup", () => { if (dragNode) { dragNode.fixed = false; dragNode = null; } });
+
+  // ---- selection + detail panel ----
+  const panel = document.getElementById("panel");
+  function select(n) {
+    const nb = neighbors.get(n.id);
+    nodeEls.forEach((m) => { m.el.classList.toggle("dim", m.id !== n.id && !nb.has(m.id)); m.el.classList.toggle("hl", m.id === n.id); });
+    linkEls.forEach((l) => l.el.classList.toggle("edge-hl", l.source.id === n.id || l.target.id === n.id));
+    const out = links.filter((l) => l.source.id === n.id).map((l) => l.target);
+    const inc = links.filter((l) => l.target.id === n.id).map((l) => l.source);
+    const linkList = (arr) => arr.length ? arr.map((t) => `<button class="lk" data-id="${esc(t.id)}">${esc(t.title)}</button>`).join("") : '<span class="muted">none</span>';
+    panel.innerHTML =
+      `<div class="ptype" style="color:${colorOf[n.type] || "#9aa5b1"}">${esc(n.type)}</div>` +
+      `<h2>${esc(n.title)}</h2>` +
+      `<div class="pid">${esc(n.id)}</div>` +
+      (n.description ? `<p>${esc(n.description)}</p>` : "") +
+      (n.tags.length ? `<div class="tags">${n.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : "") +
+      `<h3>Links to</h3><div class="links">${linkList(out)}</div>` +
+      `<h3>Linked from</h3><div class="links">${linkList(inc)}</div>`;
+    panel.classList.add("open");
+    panel.querySelectorAll(".lk").forEach((b) => b.addEventListener("click", () => { const t = byId.get(b.dataset.id); if (t) select(t); }));
+  }
+  function clearSel() { nodeEls.forEach((m) => m.el.classList.remove("dim", "hl")); linkEls.forEach((l) => l.el.classList.remove("edge-hl")); panel.classList.remove("open"); }
+  svg.addEventListener("click", (e) => { if (e.target === svg || e.target === viewport) clearSel(); });
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  // ---- legend + search + counts ----
+  const legend = document.getElementById("legend");
+  legend.innerHTML = DATA.types.map((t) => `<span class="lg"><i style="background:${colorOf[t]}"></i>${esc(t)}</span>`).join("");
+  document.getElementById("counts").textContent = `${DATA.counts.concepts} concepts \u00b7 ${DATA.counts.links} links \u00b7 ${DATA.counts.types} types`;
+  const search = document.getElementById("search");
+  search.addEventListener("input", () => {
+    const q = search.value.trim().toLowerCase();
+    nodeEls.forEach((n) => { const hit = !q || n.title.toLowerCase().includes(q) || n.type.toLowerCase().includes(q) || n.tags.join(" ").toLowerCase().includes(q); n.el.classList.toggle("dim", !!q && !hit); n.el.classList.toggle("hit", !!q && hit); });
+  });
+
+  requestAnimationFrame(tick);
+})();</script>
+</body></html>

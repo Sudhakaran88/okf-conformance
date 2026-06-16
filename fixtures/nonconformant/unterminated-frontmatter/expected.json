@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M2",
+  "level": "error",
+  "violation": "thing.md opens a frontmatter block that is never closed"
+}

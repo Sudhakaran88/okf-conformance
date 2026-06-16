@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "S5",
+  "level": "warning",
+  "violation": "thing.md has a non-ISO-8601 `timestamp` (warning by default, error under --strict)"
+}

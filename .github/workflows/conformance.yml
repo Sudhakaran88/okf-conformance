@@ -1,0 +1,25 @@
+name: conformance
+
+# The repo enforces its own rules: the suite runs on every push and pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Oracle 2 vs the fixtures: conformant must pass, nonconformant must fail
+      # as expected. Pure Node, no dependencies, nothing to install.
+      - name: Run the conformance suite
+        run: node fixtures/run-suite.mjs
+
+      # Dogfood: the worked example must stay conformant even under --strict.
+      - name: Validate the worked example (strict)
+        run: node validator/okf-validate.mjs ./examples/sample-bundle/knowledge --strict

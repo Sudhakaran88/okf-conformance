@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M2",
+  "level": "error",
+  "violation": "thing.md has no YAML frontmatter block"
+}
