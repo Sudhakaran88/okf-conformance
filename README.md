@@ -135,13 +135,6 @@ graph edge. `type` is the only required field.
 > **Disambiguation:** the **Open Knowledge Format** (Google's file format) is unrelated
 > to the **Open Knowledge Foundation** (a non-profit). Both abbreviate to OKF.
 
-## Who built this
-
-Built by **[WitsCode](https://witscode.com)**, a web and SEO studio — and the
-**@cyber_saiyan** persona — working in AI search, agent tooling, and answer-engine
-optimization. It is open tooling for a shared standard, contributed back to the
-ecosystem we build in.
-
 ## License
 
 [MIT](LICENSE). Use it, fork it, vendor it into your CI. Neutrality is the point.
