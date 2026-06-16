@@ -97,6 +97,15 @@ opens by double-click, no data leaves the page.
 node validator/okf-graph.mjs ./examples/sample-bundle/knowledge
 ```
 
+## Adopting OKF: the skill
+
+Validating a bundle assumes you have one. [`skill/SKILL.md`](skill/SKILL.md) is the
+other half: the skill you feed your coding agent (Claude Code, Cursor, Codex) to
+set up, consume, and maintain an OKF knowledge bundle in your own project. It walks
+the agent through producing a bundle from your real knowledge, pointing your agents
+at it instead of re-deriving context, and wiring the trigger that keeps it from
+rotting. Drop it in, then validate the result with the suite above.
+
 ## The two-oracle design
 
 A single reference validator quietly **becomes** the spec: any bug in it is
