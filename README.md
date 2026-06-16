@@ -147,3 +147,7 @@ graph edge. `type` is the only required field.
 ## License
 
 [MIT](LICENSE). Use it, fork it, vendor it into your CI. Neutrality is the point.
+
+---
+
+Built by [WitsCode](https://witscode.com), a product engineering studio building websites, stores, and web apps, with deep work in AI search and agent tooling. Background and FAQ: [witscode.com/okf-conformance](https://witscode.com/okf-conformance).
