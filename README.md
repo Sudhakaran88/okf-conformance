@@ -2,6 +2,7 @@
 
 [![conformance](https://github.com/Sudhakaran88/okf-conformance/actions/workflows/conformance.yml/badge.svg)](https://github.com/Sudhakaran88/okf-conformance/actions/workflows/conformance.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![OKF BundleDex](https://bundledex.net/static-badge.svg)](https://bundledex.net)
 
 The conformance suite for the **Open Knowledge Format (OKF)** — a written criteria
 document and an executable validator that tell you, pass or fail, whether a bundle
