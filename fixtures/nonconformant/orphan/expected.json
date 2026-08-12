@@ -1,5 +1,5 @@
 {
-  "conformant": false,
+  "conformant": true,
   "rule": "S4",
   "level": "warning",
   "violation": "notes/orphan.md has no links in or out (warning by default, error under --strict)"

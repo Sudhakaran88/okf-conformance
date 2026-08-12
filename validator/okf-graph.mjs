@@ -8,7 +8,10 @@
 //
 // Works on ANY OKF bundle. It parses YAML frontmatter (type, title, description, tags)
 // and the internal markdown links in each file (a link to another .md file = a graph edge).
-// It also lints the bundle: missing `type`, links that point nowhere, and orphan concepts.
+// Both v0.2 link forms resolve: absolute bundle-relative (`/tables/x.md`) and relative.
+// It also lints the bundle: concept documents missing `type`, links that point nowhere
+// (tolerated by OKF v0.2 §6.1 — surfaced here as quality lint, not failures), and
+// orphan concepts. index.md / log.md are reserved files (§3.1), not concepts.
 // Pure Node built-ins. No dependencies. No data leaves your machine.
 
 import fs from "node:fs";
@@ -74,7 +77,9 @@ function stripQuotes(s) {
 }
 
 // ---- extract internal concept links from a markdown body -------------------
-function extractLinks(body, fileDir) {
+// v0.2 §6.1: a leading `/` is bundle-relative (the recommended form); anything
+// else resolves relative to the linking file's directory.
+function extractLinks(body, fileDir, bundleRoot) {
   const edges = [];
   const unresolved = [];
   const re = /\[[^\]]*\]\(([^)\s]+)[^)]*\)/g;
@@ -86,7 +91,9 @@ function extractLinks(body, fileDir) {
     if (!target) continue;
     if (/^[a-z]+:\/\//i.test(target) || target.startsWith("mailto:")) continue; // external
     if (!target.toLowerCase().endsWith(".md")) continue; // concept edges are .md links
-    const resolved = path.resolve(fileDir, target);
+    const resolved = target.startsWith("/")
+      ? path.join(bundleRoot, target.slice(1))
+      : path.resolve(fileDir, target);
     if (fs.existsSync(resolved)) edges.push(resolved);
     else unresolved.push(target);
   }
@@ -103,19 +110,23 @@ const lint = { missingType: [], unresolved: [], orphans: [] };
 const degree = new Map();
 const bump = (id) => degree.set(id, (degree.get(id) || 0) + 1);
 
+const RESERVED = new Set(["index.md", "log.md"]); // §3.1 — listings/history, not concepts
+
 for (const full of files) {
   const id = idOf(full);
+  const base = path.basename(full).toLowerCase();
+  const reserved = RESERVED.has(base);
   const text = fs.readFileSync(full, "utf8");
   const { fm, body } = parseFrontmatter(text);
-  if (!fm.type) lint.missingType.push(id);
+  if (!fm.type && !reserved) lint.missingType.push(id); // reserved files need no type
   nodes.push({
     id,
-    type: fm.type || "Untyped",
+    type: fm.type || (reserved ? (base === "index.md" ? "Index" : "Log") : "Untyped"),
     title: fm.title || path.basename(id, ".md"),
     description: fm.description || "",
     tags: fm.tags || [],
   });
-  const { edges, unresolved } = extractLinks(body, path.dirname(full));
+  const { edges, unresolved } = extractLinks(body, path.dirname(full), bundleDir);
   for (const t of edges) {
     const targetId = idOf(t);
     if (targetId === id) continue;
@@ -125,7 +136,10 @@ for (const full of files) {
   for (const u of unresolved) lint.unresolved.push({ from: id, link: u });
 }
 
-for (const n of nodes) if (!degree.get(n.id)) lint.orphans.push(n.id);
+for (const n of nodes) {
+  if (RESERVED.has(path.basename(n.id).toLowerCase())) continue; // not orphan subjects
+  if (!degree.get(n.id)) lint.orphans.push(n.id);
+}
 
 const types = [...new Set(nodes.map((n) => n.type))].sort();
 const graph = {

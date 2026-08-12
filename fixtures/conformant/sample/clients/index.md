@@ -1,9 +1,4 @@
----
-type: Section
-title: Clients
-description: Active engagements and the facts agents need before touching their work.
----
-
 # Clients
-- [Acme Store](acme-store.md)
-- [Northwind](northwind.md)
+
+* [Acme Store](acme-store.md) - DTC Shopify store, US market. SEO + content retainer.
+* [Northwind](northwind.md) - B2B SaaS, UK market. Content-led growth.

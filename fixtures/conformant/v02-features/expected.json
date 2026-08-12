@@ -1,0 +1,4 @@
+{
+  "conformant": true,
+  "note": "Exercises the v0.2 surface: okf_version declaration in the root index, generated/verified (list and bare-mapping forms), status, stale_after, sources, an Attested Computation with runtime, a frontmattered log.md with ISO date headings, and both link forms (absolute bundle-relative and relative). Conformant even under --strict."
+}

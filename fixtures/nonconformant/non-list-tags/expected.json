@@ -1,5 +1,5 @@
 {
-  "conformant": false,
+  "conformant": true,
   "rule": "S5",
   "level": "warning",
   "violation": "thing.md declares `tags` as a string, not a list (warning by default, error under --strict)"

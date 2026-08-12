@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M2",
+  "level": "error",
+  "violation": "thing.md has delimited frontmatter that is not parseable YAML (unterminated flow sequence). SPEC 11.1 requires a *parseable* block, not merely a delimited one"
+}

@@ -5,8 +5,13 @@
 //   • each conformant fixture exits 0 and reports conformant
 //   • each nonconformant MUST fixture (level "error") fails in default mode and
 //     names its expected rule id in the report's errors
-//   • each nonconformant SHOULD fixture (level "warning") is conformant in
-//     default mode (warning only) AND fails under --strict, naming its rule id
+//   • each nonconformant SHOULD fixture (level "warning") stays conformant per
+//     §11 (warning only, exit 0) AND fails the --strict quality bar, naming its
+//     rule id in the warnings
+//
+// Every fixture's expected.json must declare `conformant` — the §11 verdict the
+// validator should report in BOTH modes, since --strict changes the exit code,
+// not conformance. The runner asserts it.
 //
 // Fixtures are auto-discovered: any immediate subdirectory of conformant/ or
 // nonconformant/ that contains an expected.json is a fixture. Drop in a new
@@ -60,7 +65,9 @@ console.log("\nOKF conformance suite\n");
 console.log("conformant fixtures (must pass):");
 for (const dir of discover("conformant")) {
   const name = rel(dir);
+  const expected = JSON.parse(fs.readFileSync(path.join(dir, "expected.json"), "utf8"));
   const { code, report } = runValidator(dir, false);
+  if (expected.conformant !== true) { record(name, false, "expected.json must declare conformant: true"); continue; }
   if (code !== 0) { record(name, false, `expected exit 0, got ${code}`); continue; }
   if (!report || report.conformant !== true) { record(name, false, "report not conformant"); continue; }
   if (report.summary.errors !== 0) { record(name, false, `${report.summary.errors} error(s)`); continue; }
@@ -75,23 +82,25 @@ for (const dir of discover("nonconformant")) {
   const { rule, level } = expected;
 
   if (level === "error") {
-    // MUST violation: fails in default mode, rule id in errors.
+    // MUST violation: nonconformant, fails in default mode, rule id in errors.
     const { code, report } = runValidator(dir, false);
-    const ok = code !== 0 && report && report.conformant === false && ruleInList(report, "errors", rule);
+    const ok = expected.conformant === false && code !== 0 && report
+      && report.conformant === false && ruleInList(report, "errors", rule);
     record(name, ok, ok
       ? `${rule} error (exit ${code})`
       : `expected ${rule} error + nonzero exit, got exit ${code}`);
   } else {
-    // SHOULD violation: conformant (warning) in default, fatal under --strict.
+    // SHOULD violation: conformant per §11 in BOTH modes; only the strict
+    // quality bar fails it.
     const def = runValidator(dir, false);
     const warnsByDefault = def.code === 0 && def.report && def.report.conformant === true
       && ruleInList(def.report, "warnings", rule);
     const str = runValidator(dir, true);
-    const failsStrict = str.code !== 0 && str.report && str.report.conformant === false
-      && ruleInList(str.report, "warnings", rule);
-    const ok = warnsByDefault && failsStrict;
+    const failsStrict = str.code !== 0 && str.report && str.report.conformant === true
+      && str.report.strictClean === false && ruleInList(str.report, "warnings", rule);
+    const ok = expected.conformant === true && warnsByDefault && failsStrict;
     record(name, ok, ok
-      ? `${rule} (warns in default, fails under --strict)`
+      ? `${rule} (conformant; warns by default, fails --strict)`
       : `expected ${rule} warning→strict-fail; default exit ${def.code}, strict exit ${str.code}`);
   }
 }

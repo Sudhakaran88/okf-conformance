@@ -1,7 +1,3 @@
----
-type: Knowledge Bundle
-title: Orphan fixture
----
-
 # Index
-- [Linked](linked.md)
+
+* [Linked](linked.md) - A concept the index reaches.

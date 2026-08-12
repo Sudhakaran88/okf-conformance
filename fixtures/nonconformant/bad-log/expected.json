@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M4",
+  "level": "error",
+  "violation": "log.md uses `## August 12, 2026` as a date heading. v0.2 (SPEC 9): date headings MUST use ISO 8601 YYYY-MM-DD form"
+}

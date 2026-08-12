@@ -5,7 +5,7 @@ description: Set up, consume, and maintain an Open Knowledge Format (OKF) bundle
 
 # Open Knowledge Format (OKF) — portable knowledge your agents can read
 
-OKF (an open standard from Google Cloud, 2026) represents knowledge as **a directory of markdown files with YAML frontmatter**, cross-linked with normal markdown links so the whole thing is a graph. One required field (`type`). No SDK, no platform, no database. It is *just files*: readable in any editor, renderable on GitHub, diffable in git, parseable by any agent.
+OKF (an open standard from Google Cloud, 2026; this skill tracks spec v0.2) represents knowledge as **a directory of markdown files with YAML frontmatter**, cross-linked with normal markdown links so the whole thing is a graph. One required field (`type`) per concept file. No SDK, no platform, no database. It is *just files*: readable in any editor, renderable on GitHub, diffable in git, parseable by any agent.
 
 The point is not a clever data structure. It is an agreement. Once knowledge is written this way, whoever **produces** it no longer has to match whoever **consumes** it. A human can hand-write a bundle an agent reads. A script can generate a bundle a human browses. One LLM can write what another queries. The format is the contract; swap the tooling on either end.
 
@@ -19,7 +19,7 @@ This skill does three jobs. Do not stop at the first one.
 
 ---
 
-## The format (the entire spec fits on a page)
+## The format (the core fits on a page)
 
 A **bundle** is a folder (commonly `knowledge/`). Each **concept** is one markdown file:
 
@@ -30,32 +30,34 @@ title: Orders
 description: One row per completed order.
 resource: https://link/to/the/thing   # optional pointer to the real artifact
 tags: [sales, revenue]                 # optional
-timestamp: 2026-06-16T00:00:00Z        # optional
+generated: { by: human:you, at: 2026-06-16T00:00:00Z }  # optional; supersedes v0.1 timestamp
 ---
 
 # Schema
 | Column | Type | Description |
 |--------|------|-------------|
 | order_id | STRING | Unique order id. |
-| customer_id | STRING | FK to [customers](customers.md). |   <- a link = a graph edge
+| customer_id | STRING | FK to [customers](/customers.md). |   <- a link = a graph edge
 ```
 
 Rules that matter:
 
-1. `type` is the only mandatory field. Everything else is up to the producer. OKF is minimally opinionated by design, so do not invent a heavy schema.
-2. Links are the graph. A markdown link to another concept file (`[customers](customers.md)`) is a directed edge. The file path is the concept's identity.
-3. `index.md` in any folder is a section landing page (progressive disclosure as an agent walks the hierarchy). `log.md` is an optional chronological history of changes.
-4. Relative links only, pointing at real files. The bundled tool flags links that resolve to nothing.
+1. `type` is the only mandatory field, and only on concept files. Everything else is up to the producer. OKF is minimally opinionated by design, so do not invent a heavy schema.
+2. Links are the graph. A markdown link to another concept file (`[customers](/customers.md)`) is a directed edge. The file path is the concept's identity.
+3. `index.md` and `log.md` are reserved files, not concepts. An `index.md` carries **no frontmatter** (a bundle-root one may carry only `okf_version: "0.2"`); its body is sections of bullet lists: `* [Title](path) - short description`. A `log.md` is the change history: `## YYYY-MM-DD` headings (ISO 8601), newest first, prose bullets opening with a bold word (`**Update**`, `**Creation**`, `**Deprecation**`).
+4. Prefer absolute bundle-relative links (`/tables/customers.md`); they survive file moves. Relative links remain valid. A link to a not-yet-written file is tolerated by the spec — never a conformance failure — but the bundled tool flags it as a quality warning.
+5. Trust and provenance live in frontmatter: `generated: { by, at }` records who wrote the content and when (actors: `<producer>/<version>` for agents/tools, `human:<id>` for people — required for hand-authored content — `process:<id>` for automation; supersedes v0.1 `timestamp`); `verified` is a list of `{ by, at }` confirmations (a bare mapping reads as a one-element list); `status: draft | stable | deprecated` (absent = stable); `stale_after: YYYY-MM-DD`. Sources go in a `sources:` frontmatter list (`id`, `resource`, `title`, plus credibility signals), superseding a body `# Citations` list.
+6. v0.2 adds `type: Attested Computation`: a concept carrying a sanctioned computation (`runtime` required, plus `parameters`, `executor`, `attester`; conventional body heading `# Computation`) so a consumer can check a value was produced the blessed way. A `references/` subdirectory conventionally mirrors external material and holds executor/attester code.
 
 ---
 
 ## Job 1 — Produce a bundle (6 steps)
 
 1. **List the knowledge domains** the team's agents and tools keep re-deriving (e.g. data models, conventions, runbooks, glossary, product facts, the pipeline itself). Each becomes a folder under `knowledge/`.
-2. **Create `knowledge/index.md`** as the root concept (`type: Knowledge Bundle`) linking to each section's `index.md`.
-3. **Write one file per concept** with the frontmatter above. Keep each file small and single-purpose. Cross-link related concepts with relative markdown links. Those links are what make it a graph, and link density is where the value is.
+2. **Create `knowledge/index.md`** as the entry point: no frontmatter (optionally just `okf_version: "0.2"`), a body of bullet sections linking each section's `index.md` with a one-line description.
+3. **Write one file per concept** with the frontmatter above. Keep each file small and single-purpose. Cross-link related concepts with markdown links (absolute bundle-relative `/path/file.md` preferred; relative also valid). Those links are what make it a graph, and link density is where the value is.
 4. **Canonicalize.** One concept per real thing. If two files describe the same entity under different names, merge them. The graph tool surfaces duplicates and orphans.
-5. **Automate the volatile parts.** Hand-author the durable concepts (conventions, runbooks, glossary). For anything derived from live data (tables, services, content items), write a small generator that emits those concept files from the source of truth and run it in the build or CI so the bundle never drifts. Generated and hand-authored concepts live in the same bundle.
+5. **Automate the volatile parts.** Hand-author the durable concepts (conventions, runbooks, glossary). For anything derived from live data (tables, services, content items), write a small generator that emits those concept files (stamped `generated: { by: <tool>/<version>, at: ... }`) from the source of truth and run it in the build or CI so the bundle never drifts. Generated and hand-authored concepts live in the same bundle.
 6. **Generate the graph + lint** with the bundled tool (below) and commit `knowledge/` to version control next to the code it describes.
 
 ### Guardrails while producing (read before drafting concepts)
@@ -99,9 +101,11 @@ Paste this into the repo's `CLAUDE.md` or `AGENTS.md` so maintenance is not opti
 This repo has an OKF knowledge bundle in `knowledge/`.
 - Before non-trivial work, read `knowledge/index.md` and follow links to the concepts you need.
 - After any change that affects a documented thing (schema, metric, convention, runbook, API),
-  update the matching concept file in the same change, and append a line to the nearest `log.md`.
+  update the matching concept file in the same change, refresh its `generated: { by, at }`,
+  and append a line to the nearest `log.md` under a `## YYYY-MM-DD` heading (newest first).
 - When unsure whether a concept exists, search `knowledge/` before creating a new file; do not duplicate.
-- Run `node knowledge/tools/okf-graph.mjs knowledge` (or your tool path) and fix any lint warnings before opening a PR.
+- Before opening a PR, run `node knowledge/tools/okf-graph.mjs knowledge` (or your tool path) and,
+  if the okf-conformance validator is installed, `node knowledge/tools/okf-validate.mjs knowledge --strict`; fix any findings.
 ```
 
 Without a trigger like this, you have rebuilt the drift problem with extra steps.
@@ -110,7 +114,7 @@ Without a trigger like this, you have rebuilt the drift problem with extra steps
 
 ## The graph + lint tool (bundled, generic, free, local)
 
-`references/okf-graph.mjs` scans any OKF bundle and emits `graph.json` plus a self-contained interactive `visualize.html` (force-directed graph, color-coded by `type`, search, click a concept for its frontmatter and its inbound/outbound links). No server, no install, no dependencies, opens by double-click, and no data leaves the page. It also **lints** the bundle: concepts missing the required `type`, links that point to a missing file, and orphan concepts with no links in or out.
+`references/okf-graph.mjs` scans any OKF bundle and emits `graph.json` plus a self-contained interactive `visualize.html` (force-directed graph, color-coded by `type`, search, click a concept for its frontmatter and its inbound/outbound links). No server, no install, no dependencies, opens by double-click, and no data leaves the page. It also **lints** the bundle: concepts missing the required `type` (a conformance error under OKF v0.2), plus links that point to a missing file and orphan concepts with no links in or out (quality warnings — the spec tolerates broken links; they may be not-yet-written knowledge).
 
 ```
 node references/okf-graph.mjs ./knowledge
@@ -119,17 +123,20 @@ node references/okf-graph.mjs ./knowledge
 
 It parses the YAML frontmatter (`type`, `title`, `description`, `tags`) and the internal markdown links in each file, so it works on ANY OKF bundle regardless of how the markdown was authored. Re-run it after editing the bundle, or in CI, to keep the graph current and the lint honest. Copy `okf-graph.mjs` somewhere stable in the target repo (e.g. `knowledge/tools/`) and reference that path.
 
+The graph tool is a lint, not the conformance oracle. For the conformance check proper, the okf-conformance suite ships a validator: `node validator/okf-validate.mjs ./bundle` (add `--strict` to also fail on quality warnings — the CI bar, layered on top of conformance rather than redefining it). v0.2 conformance is three MUSTs: parseable frontmatter on every non-reserved `.md` file, a non-empty `type`, and reserved files following their structure. Unknown types, unknown keys, missing optional fields, broken links, and missing `index.md` never fail a bundle.
+
 ---
 
 ## Conventions and best practices
 
-1. **One required field (`type`); stay minimally opinionated.** Let producers add fields as needed; do not impose a schema.
+1. **One required field (`type`), on concept files only; stay minimally opinionated.** Let producers add fields as needed; do not impose a schema.
 2. **Small files, many links.** Density of true links is the value.
 3. **Canonical names.** Resolve synonyms to one concept; the visualizer makes drift obvious.
 4. **Generate from the source of truth** for anything that changes; hand-author the durable rest.
 5. **Version-control it** next to the code. Treat the bundle as docs-as-code and review it in PRs.
 6. **No lock-in, ever.** Never make a concept require a proprietary account, SDK, or runtime to read.
-7. **Lint before you ship.** Green lint (every concept typed, every link resolving, no orphans) is the bar for a healthy bundle.
+7. **Lint before you ship.** Green lint (every concept typed, every link resolving, no orphans) is the bar for a healthy bundle. Conformance is looser by design — broken links never fail a bundle — but a finished bundle should not ship them.
+8. **Stamp trust as you go.** `generated` on every concept (`human:<id>` when hand-authored), `verified` when someone confirms, `status: deprecated` instead of deleting, `stale_after` on anything with a shelf life.
 
 ---
 

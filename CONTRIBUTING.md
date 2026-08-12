@@ -29,6 +29,14 @@ Every validator finding must reference a rule id from `CONFORMANCE.md`
 with no check, is itself a spec defect — reconcile it, don't paper over it.
 The mapping table at the bottom of `CONFORMANCE.md` must stay accurate.
 
+**Tracking the upstream spec.** The criteria target a specific version of the
+[OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+(currently v0.2). When Google revs the spec, both oracles move together in one
+change: update `CONFORMANCE.md` first, bring the validator into line, update or
+add fixtures, and append the old→new mapping to the "Changes" table in
+`CONFORMANCE.md`. Between spec versions, disagreements with the upstream prose
+are spec defects here, handled exactly like oracle disagreements.
+
 ## 2. The growth loop — fixtures from real failures
 
 The suite grows from real failures, not only the dialects someone thought to
@@ -50,18 +58,22 @@ To add a fixture:
    { "conformant": true, "note": "why this is a valid bundle" }
    ```
 
-   Nonconformant fixture (MUST violation — fails in default mode):
+   MUST violation — nonconformant, fails in default mode:
    ```json
    { "conformant": false, "rule": "M4", "level": "error", "violation": "what is wrong" }
    ```
 
-   Nonconformant fixture (SHOULD violation — warns by default, fails under `--strict`):
+   SHOULD violation — **still conformant** (§11 tolerates it); warns by default
+   and fails only the `--strict` quality bar:
    ```json
-   { "conformant": false, "rule": "S5", "level": "warning", "violation": "what is wrong" }
+   { "conformant": true, "rule": "S5", "level": "warning", "violation": "what is wrong" }
    ```
 
-   `expected.json` is not markdown, so the validator ignores it when it walks the
-   bundle. The runner reads it to know what to assert.
+   `conformant` is the §11 verdict the validator must report in **both** modes,
+   because `--strict` changes the exit code, not conformance. The runner
+   asserts it, so a SHOULD fixture claiming `"conformant": false` fails the
+   suite. `expected.json` is not markdown, so the validator ignores it when it
+   walks the bundle.
 4. **Run the suite.** It auto-discovers any subdirectory of `conformant/` or
    `nonconformant/` that contains an `expected.json`:
 
@@ -69,20 +81,25 @@ To add a fixture:
    node fixtures/run-suite.mjs
    ```
 
-   The runner asserts: conformant fixtures exit 0; MUST fixtures fail in default
-   mode and name their rule in `errors`; SHOULD fixtures are conformant (warning
-   only) in default mode and fail under `--strict`, naming their rule in `warnings`.
+   The runner asserts: every fixture's reported `conformant` matches its
+   `expected.json`; conformant fixtures exit 0; MUST fixtures are nonconformant,
+   fail in default mode, and name their rule in `errors`; SHOULD fixtures stay
+   conformant in both modes, exit 0 by default, and fail `--strict` with
+   `strictClean: false`, naming their rule in `warnings`.
 
 ## What the suite does not certify
 
 Be honest in issues and PRs about the ceiling. Because OKF is minimally
 opinionated, this suite certifies the **interoperability surface** —
-frontmatter parsing, link resolution, reserved files, `type` presence — and
+frontmatter parseability, `type` presence, reserved-file structure — and
 nothing past it. It cannot certify that two producers mean the same thing by
-`type: Metric`, nor that the knowledge is correct. Rules `S3` (single-purpose)
-and `S6` (merged synonyms) are advisory for exactly this reason: they are
-semantic judgements, not mechanical checks. Proposals to "check semantics" are
-out of scope by design — say so kindly and close them.
+`type: Metric`, nor that the knowledge is correct. The "Advisory" items in
+`CONFORMANCE.md` (single-purpose concepts, merged synonyms) stay advisory for
+exactly this reason: they are semantic judgements, not mechanical checks. And
+per spec §11, broken links, unknown types, unknown keys, and missing optional
+fields are *tolerated* — proposals to hard-fail them contradict the spec.
+Proposals to "check semantics" are out of scope by design — say so kindly and
+close them.
 
 ## Scope guardrails
 

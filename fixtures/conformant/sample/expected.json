@@ -1,4 +1,4 @@
 {
   "conformant": true,
-  "note": "The 12-concept worked example from the kit. Lint-clean: 0 errors, 0 warnings, conformant even under --strict."
+  "note": "The worked example from the kit, realigned to v0.2: 7 concepts + 5 frontmatter-free index files, okf_version declared at the root, one concept carrying generated/verified/status. Lint-clean: 0 errors, 0 warnings, conformant even under --strict."
 }

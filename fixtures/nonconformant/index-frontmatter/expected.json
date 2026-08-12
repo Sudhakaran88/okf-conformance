@@ -1,0 +1,6 @@
+{
+  "conformant": false,
+  "rule": "M4",
+  "level": "error",
+  "violation": "sub/index.md carries a frontmatter block. v0.2 (SPEC 8/11.3): index files contain no frontmatter; only a bundle-root index.md may carry okf_version"
+}

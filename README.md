@@ -5,7 +5,13 @@
 
 The conformance suite for the **Open Knowledge Format (OKF)** — a written criteria
 document and an executable validator that tell you, pass or fail, whether a bundle
-really speaks OKF or just claims to.
+really speaks OKF or just claims to. Aligned to **OKF spec v0.2** and validated
+against Google's four published reference bundles — `acme_retail`,
+`crypto_bitcoin`, `ga4`, `stackoverflow` all pass. Reproduce that yourself:
+
+```bash
+node tools/check-reference-bundles.mjs
+```
 
 > AI agents waste half their work re-deriving the same context. The Open Knowledge Format standardizes that knowledge as portable, linked markdown any agent can read. But a format is read-optional; it enforces nothing. What earns the word infrastructure is not that the format enforces anything, it is that it is the thing every enforcer checks against. And portability is only honest if it is tested. A spec without an executable conformance suite is a gentleman's agreement: implementations quietly fork dialects and you are back to lock-in, just distributed.
 >
@@ -21,8 +27,9 @@ No install, no dependencies, no account. You need Node 18+ and a bundle director
 node validator/okf-validate.mjs ./your-bundle
 ```
 
-You get a human summary, a machine-readable `okf-report.json` written next to your
-bundle, and an exit code: **0** conformant, **1** nonconformant, **2** usage/IO error.
+You get a human summary, a machine-readable `okf-report.json` written inside the
+bundle directory (`<bundle>/okf-report.json`), and an exit code: **0** pass,
+**1** fail, **2** usage/IO error.
 
 Try it on the worked example shipped here:
 
@@ -32,10 +39,11 @@ node validator/okf-validate.mjs ./examples/sample-bundle/knowledge
 
 ```
 OKF conformance — knowledge
-  12 concepts, 23 links
+  7 concept(s), 5 reserved file(s), 23 links
   0 error(s), 0 warning(s)
 
 PASS — conformant
+  wrote examples/sample-bundle/knowledge/okf-report.json
 ```
 
 Pipe the JSON instead of writing a file:
@@ -50,18 +58,33 @@ Hold the bundle to the recommendations too, not just the requirements:
 node validator/okf-validate.mjs ./your-bundle --strict
 ```
 
+`--strict` is a **quality bar layered on top of conformance, not a stricter
+definition of it**. OKF v0.2 is deliberately permissive, so a bundle with a
+broken link is conformant — the report says `conformant: true` in both modes.
+Under `--strict` that bundle exits non-zero with `strictClean: false`, which is
+what makes it useful as a CI gate without misrepresenting the spec.
+
 ## Conformance levels
 
-The criteria live in **[CONFORMANCE.md](CONFORMANCE.md)** (Oracle 1). In short:
+The criteria live in **[CONFORMANCE.md](CONFORMANCE.md)** (Oracle 1), aligned to
+the [OKF v0.2 spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) (§11). In short:
 
-- **MUST (M1–M6)** — a violation is an **error** and makes the bundle nonconformant:
-  it is a directory of `.md` concept files; each opens with a delimited YAML
-  frontmatter block; each has a non-empty `type`; every internal `.md` link
-  resolves; path is identity; files only, no runtime.
-- **SHOULD (S1–S6)** — a violation is a **warning** (an error under `--strict`):
-  a root `index.md`; folder indexes that link their concepts; single-purpose
-  concepts; no orphans; ISO-8601 `timestamp`, list `tags`, URI `resource`;
-  merged synonyms.
+- **MUST (M1–M6)** — a violation is an **error** and makes the bundle
+  nonconformant: it is a directory of `.md` files; every concept document
+  (non-reserved `.md`) opens with a parseable YAML frontmatter block and
+  carries a non-empty `type`; reserved files follow their structure —
+  `index.md` carries no frontmatter (a bundle-root `index.md` may declare
+  `okf_version` only) and `log.md` date headings are ISO 8601; path is
+  identity; files only, no runtime.
+- **SHOULD (S1–S6)** — a violation is a **warning**, which fails only the
+  `--strict` bar: a root `index.md`; indexes that enumerate their directory's
+  concepts; internal links that resolve; no isolated concepts; list `tags` and
+  ISO 8601 legacy `timestamp`; well-formed `generated` / `verified` / `sources`
+  / `status` / `stale_after` fields.
+- **Tolerated** — never conformance failures, per spec §11: broken cross-links,
+  unknown `type` values, unknown frontmatter keys, missing optional fields,
+  missing `index.md` files. OKF is deliberately permissive; the validator
+  surfaces these as quality warnings, not errors.
 - **MAY** — any extra frontmatter fields, `log.md` history, any body structure.
 
 Every validator finding names the rule id it tripped (e.g. `M3`, `S4`), so a
@@ -77,11 +100,12 @@ node fixtures/run-suite.mjs
 ```
 
 ```
-9/9 fixtures passed.
+14/14 fixtures passed.
 ```
 
-Conformant fixtures must exit 0. Nonconformant fixtures must fail and name the
-exact rule they trip — MUST cases in default mode, SHOULD cases under `--strict`.
+Conformant fixtures must exit 0. Violation fixtures must name the exact rule
+they trip — MUST cases fail in default mode, SHOULD cases stay conformant and
+fail only `--strict`.
 CI runs this on every push and pull request (see
 [`.github/workflows/conformance.yml`](.github/workflows/conformance.yml)), so the
 repo enforces its own rules. That is the credibility the whole project rests on.
@@ -132,14 +156,30 @@ make it the lock-in it exists to prevent. It is open source on purpose.
 
 ## About OKF
 
-The Open Knowledge Format is Google Cloud's open spec (June 2026) for representing
-knowledge as portable, cross-linked markdown that AI agents read — the formalization
-of Andrej Karpathy's "LLM Wiki" pattern. One bundle is a directory; one concept is a
-markdown file with a YAML frontmatter block; a markdown link to another concept is a
-graph edge. `type` is the only required field.
+The Open Knowledge Format is Google Cloud's open spec (v0.1 June 2026, now
+**v0.2**) for representing knowledge as portable, cross-linked markdown that AI
+agents read — the formalization of Andrej Karpathy's "LLM Wiki" pattern. One
+bundle is a directory; one concept is a markdown file with a YAML frontmatter
+block; a markdown link to another concept is a graph edge. `type` is the only
+always-required field. v0.2 added the trust and provenance families
+(`generated`, `verified`, `sources`, `status`, `stale_after`) and Attested
+Computations; this suite tracks it.
 
 - OKF announcement: <https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing>
 - OKF spec & repo: <https://github.com/GoogleCloudPlatform/knowledge-catalog>
+- A plain-language guide: <https://witscode.com/open-knowledge-format>
+
+## Ecosystem
+
+Open-source tools built by the community around OKF (a fuller index is proposed
+for the spec repo itself):
+
+- [OWOX Model Canvas](https://github.com/OWOX/owox-model-canvas) — visual canvas / ERD editor that imports and exports OKF.
+- [OnyxWriter](https://github.com/activetwist/OnyxWriter) — local-first desktop editor for OKF bundles.
+- [okf-knowledge](https://github.com/sniperunder123/okf-knowledge) and [okf-skills](https://github.com/scaccogatto/okf-skills) — agent skills to create, maintain, and visualize bundles.
+- [openknowledge](https://github.com/openknowledge-sh/openknowledge) — a Go CLI to create, inspect, and publish bundles.
+- [OKFy](https://github.com/0dust/OKFy), [KnowHub](https://github.com/smgam29/knowhub), [kiso](https://github.com/oak-invest/kiso) — converters and publishers into and out of OKF.
+- [okf-lint](https://github.com/thisismydesign/okf-lint) — another linter for OKF bundles. More checkers are good for the format; neutrality is the point.
 
 > **Disambiguation:** the **Open Knowledge Format** (Google's file format) is unrelated
 > to the **Open Knowledge Foundation** (a non-profit). Both abbreviate to OKF.

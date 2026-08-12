@@ -1,8 +1,4 @@
----
-type: Knowledge Bundle
-title: Dead-link fixture
----
-
 # Index
-- [Real](real.md)
-- [Ghost](ghost.md)
+
+* [Real](real.md) - A concept that exists.
+* [Ghost](ghost.md) - A link to a file that does not exist.

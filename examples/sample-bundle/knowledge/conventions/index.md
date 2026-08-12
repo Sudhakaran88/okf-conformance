@@ -1,8 +1,3 @@
----
-type: Section
-title: Conventions
-description: How this team does things, so agents and people stay consistent.
----
-
 # Conventions
-- [Reporting Cadence](reporting-cadence.md)
+
+* [Reporting Cadence](reporting-cadence.md) - When and how client reports go out.

@@ -23,3 +23,17 @@ jobs:
       # Dogfood: the worked example must stay conformant even under --strict.
       - name: Validate the worked example (strict)
         run: node validator/okf-validate.mjs ./examples/sample-bundle/knowledge --strict
+
+  # A canary, not a gate: validates Google's published reference bundles so we
+  # notice when upstream moves. It needs network access and depends on a repo we
+  # do not control, so a failure here reports without blocking the suite.
+  reference-bundles:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate Google's OKF reference bundles
+        run: node tools/check-reference-bundles.mjs

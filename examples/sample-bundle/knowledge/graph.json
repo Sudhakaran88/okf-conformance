@@ -1,17 +1,16 @@
 {
   "bundle": "knowledge",
-  "generated": "2026-06-15T18:52:34.340Z",
+  "generated": "2026-08-12T06:21:23.877Z",
   "counts": {
     "concepts": 12,
     "links": 23,
-    "types": 6
+    "types": 5
   },
   "types": [
     "Client",
     "Convention",
-    "Knowledge Bundle",
+    "Index",
     "Playbook",
-    "Section",
     "Term"
   ],
   "nodes": [
@@ -28,9 +27,9 @@
     },
     {
       "id": "clients/index.md",
-      "type": "Section",
-      "title": "Clients",
-      "description": "Active engagements and the facts agents need before touching their work.",
+      "type": "Index",
+      "title": "index",
+      "description": "",
       "tags": []
     },
     {
@@ -45,9 +44,9 @@
     },
     {
       "id": "conventions/index.md",
-      "type": "Section",
-      "title": "Conventions",
-      "description": "How this team does things, so agents and people stay consistent.",
+      "type": "Index",
+      "title": "index",
+      "description": "",
       "tags": []
     },
     {
@@ -82,19 +81,17 @@
     },
     {
       "id": "glossary/index.md",
-      "type": "Section",
-      "title": "Glossary",
-      "description": "Shared definitions so a metric means the same thing to every agent.",
+      "type": "Index",
+      "title": "index",
+      "description": "",
       "tags": []
     },
     {
       "id": "index.md",
-      "type": "Knowledge Bundle",
-      "title": "Acme Growth Knowledge",
-      "description": "One portable source of truth for the agents and people working Acme's SEO and content.",
-      "tags": [
-        "root"
-      ]
+      "type": "Index",
+      "title": "index",
+      "description": "",
+      "tags": []
     },
     {
       "id": "playbooks/content-refresh.md",
@@ -108,9 +105,9 @@
     },
     {
       "id": "playbooks/index.md",
-      "type": "Section",
-      "title": "Playbooks",
-      "description": "Repeatable procedures an agent can execute end to end.",
+      "type": "Index",
+      "title": "index",
+      "description": "",
       "tags": []
     },
     {

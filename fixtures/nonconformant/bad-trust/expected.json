@@ -1,0 +1,6 @@
+{
+  "conformant": true,
+  "rule": "S6",
+  "level": "warning",
+  "violation": "thing.md has `generated` without `by` (SPEC 5.2) and a `status` outside draft|stable|deprecated (SPEC 5.4) - warnings by default, errors under --strict"
+}
